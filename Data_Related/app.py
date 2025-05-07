@@ -8,7 +8,8 @@ import ast
 def load_data(file_path):
     return pd.read_csv(file_path)
 
-url = 'https://drive.google.com/file/d/1dqYsDQVmc4rf0LH7TiiUOKuAQEsXCSJv/view?usp=sharing'
+file_id = "1dqYsDQVmc4rf0LH7TiiUOKuAQEsXCSJv"
+url = f"https://drive.google.com/uc?id={file_id}"
 business_df = load_data(url)
 st.title("Restaurant Recommender")
 st.markdown("Select your preferences to get personalized restaurant recommendations.")
