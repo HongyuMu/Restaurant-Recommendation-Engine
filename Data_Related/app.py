@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 def load_data(file_path):
     return pd.read_csv(file_path)
 
-file_id = "1dqYsDQVmc4rf0LH7TiiUOKuAQEsXCSJv"
+file_id = "1_XzDOP5VqWg3N7VyGlxePQfgwrPHQDI0"
 url = f"https://drive.google.com/uc?id={file_id}"
 business_df = load_data(url)
 st.title("Restaurant Recommender")
@@ -88,7 +88,7 @@ def review_confidence_weight(n_reviews, min_reviews=20, threshold=400):
 
 
 # --- Scoring Function ---
-def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0):
+def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0, penalty_strength = 0.1):
     features = selected_features.copy()
     max_review_weight = 0.15
     actual_review_weight = review_boost * max_review_weight
@@ -99,7 +99,7 @@ def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0
         features.append('log_review_count')
 
     scaler = MinMaxScaler()
-    scaled = scaler.fit_transform(df[features])
+    scaled = scaler.fit_transform(df[features]) 
 
     weights = []
     for feat in features:
@@ -107,13 +107,21 @@ def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0
 
     weights = np.array(weights)
     weights /= weights.sum()
-
     base_scores = scaled @ weights
     df['base_score'] = base_scores
 
-    # Confidence weighting
+    scaler_var = MinMaxScaler()
+    df[['sentiment_var_norm', 'star_var_norm']] = scaler_var.fit_transform(
+        df[['sentiment_variability', 'star_variability']]
+    )
+    df['consistency_penalty'] = 1 - penalty_strength * (df['sentiment_var_norm'] + df['star_var_norm']) / 2
+    df['penalized_score'] = df['base_score'] * df['consistency_penalty']
+
     df['confidence_weight'] = df['review_count'].apply(review_confidence_weight)
-    df['final_score'] = 10 * (df['base_score'] * df['confidence_weight']) / (df['base_score'] * df['confidence_weight']).max()
+
+    # Normalize score by dividing the best performer
+    df['final_score'] = 10 * (df['penalized_score'] * df['confidence_weight']) / \
+                        (df['penalized_score'] * df['confidence_weight']).max()
 
     return df
 
@@ -174,18 +182,18 @@ if st.button("🔍 Begin Searching for Restaurants"):
                 yelp_link = f"https://www.yelp.com/biz/{row['business_id']}"
                 st.markdown(f"### [{row['name']}]({yelp_link})")
                 st.markdown(f"⭐ **{row.get('stars', 'N/A')} stars** ({row.get('review_count', 0)} reviews)")
+                st.markdown(f"🏷️ **Categories**: {row.get('categories', 'N/A')}")
                 st.markdown(f"📍 `{row.get('address', 'N/A')}`")
-                st.markdown(f"🕒 {'Open now ✅' if row.get('is_open_now') else 'Closed ❌'}")
                 st.markdown(f"💲 Price Level: `{row.get('RestaurantsPriceRange2', 'N/A')}`")
 
             with col2:
                 st.markdown("#### 📊 Summary")
                 st.markdown(f"""
-                - 🍽️ **Food Quality Score**: {row.get('food_sentiment', 'N/A'):.3f}
-                - 🙋 **Service Score**: {row.get('service_sentiment', 'N/A'):.3f}
-                - 🪑 **Ambience Score**: {row.get('ambience_sentiment', 'N/A'):.3f}
-                - 💰 **Value Score**: {row.get('value_sentiment', 'N/A'):.3f}
-                - 🧮 **Review Trust Factor**: `{row.get('confidence_weight', 'N/A'):.2f}`
+                - 🍽️ **Food Quality Score**: `{row.get('food_sentiment', 'N/A'):.3f}`
+                - 🙋 **Service Score**: `{row.get('service_sentiment', 'N/A'):.3f}`
+                - 🪑 **Ambience Score**: `{row.get('ambience_sentiment', 'N/A'):.3f}`
+                - 💰 **Value Score**: `{row.get('value_sentiment', 'N/A'):.3f}`
+                - 📉 **Star Variability**: `{row.get('star_variability', 'N/A'):.3f}`
                 - 🎯 **Final Score**: `{row['final_score']:.2f}` out of 10
                 """)
 
