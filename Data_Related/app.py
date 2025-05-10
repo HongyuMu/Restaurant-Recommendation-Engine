@@ -88,7 +88,7 @@ def review_confidence_weight(n_reviews, min_reviews=20, threshold=400):
 
 
 # --- Scoring Function ---
-def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0, penalty_strength = 0.1):
+def compute_restaurant_scores(df, weight_dict, selected_features, review_boost=0, penalty_strength = 0.15):
     features = selected_features.copy()
     max_review_weight = 0.15
     actual_review_weight = review_boost * max_review_weight
