@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 def load_data(file_path):
     return pd.read_csv(file_path)
 
-file_id = "1_XzDOP5VqWg3N7VyGlxePQfgwrPHQDI0"
+file_id = "1wGPVdSei3NHKaZ0rHVILTvBOHAK2MVMJ"
 url = f"https://drive.google.com/uc?id={file_id}"
 business_df = load_data(url)
 st.title("Restaurant Recommender")
@@ -42,6 +42,11 @@ st.caption("""
 - 3: $31–60 per person  
 - 4: Over $61 per person
 """)
+
+st.subheader("📅 Contextual Preferences")
+
+selected_day = st.selectbox("Day of the Week You Plan to Visit:", 
+    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
 
 # --- User Input: Open Now? ---
 show_open_only = st.checkbox("Show only restaurants open now")
@@ -170,12 +175,23 @@ if st.button("🔍 Begin Searching for Restaurants"):
             review_boost=review_pref
         )
 
+        weekday_cols = ['Monday_star', 'Tuesday_star', 'Wednesday_star', 'Thursday_star', 'Friday_star']
+        weekend_cols = ['Saturday_star', 'Sunday_star']
+        scored_df['weekday_avg_star'] = scored_df[weekday_cols].mean(axis=1)
+        scored_df['weekend_avg_star'] = scored_df[weekend_cols].mean(axis=1)
+
         top_n = 10
         top_restaurants = scored_df.sort_values(by='final_score', ascending=False).head(top_n)
 
         st.subheader(f"Top {top_n} Recommended Restaurants")
 
         for _, row in top_restaurants.iterrows():
+            # --- Determine contextual rating based on selected day ---
+            if selected_day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
+                contextual_rating = f"{row['weekday_avg_star']:.2f} (weekday avg)"
+            else:
+                contextual_rating = f"{row['weekend_avg_star']:.2f} (weekend avg)"
+
             col1, col2 = st.columns([2, 3])  # left: basic info; right: details
 
             with col1:
@@ -185,6 +201,7 @@ if st.button("🔍 Begin Searching for Restaurants"):
                 st.markdown(f"🏷️ **Categories**: {row.get('categories', 'N/A')}")
                 st.markdown(f"📍 `{row.get('address', 'N/A')}`")
                 st.markdown(f"💲 Price Level: `{row.get('RestaurantsPriceRange2', 'N/A')}`")
+                st.markdown(f"🗓️ **Contextual Rating**: `{contextual_rating}`")
 
             with col2:
                 st.markdown("#### 📊 Summary")
