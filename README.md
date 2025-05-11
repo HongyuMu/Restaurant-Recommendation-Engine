@@ -1,3 +1,3 @@
 # Restaurant-Recommendation
 This project develops a personalized restaurant recommendation system based on user preferences using Yelp Open Database. The system utilizes sentiment analysis and a weighted scoring approach to recommend restaurants tailored to individual user tastes. The project involves data collection, preprocessing, exploratory analysis, and model development to quantify restaurant ratings based on user-specific variables. The goal is to provide users with the ability to manually adjust the weightings of different features for more personalized recommendations. The system is built with Python. <br>
-The complete version of engineered features is stored in [business_with_sentiments](https://drive.google.com/file/d/1_XzDOP5VqWg3N7VyGlxePQfgwrPHQDI0/view?usp=sharing)
+The complete version of engineered features is stored in [business_with_sentiments](https://drive.google.com/file/d/16Tci0FW-dUDZLZ9R5EsZaDd5uGiewQF6/view?usp=drive_link)
