@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 def load_data(file_path):
     return pd.read_csv(file_path)
 
-file_id = "1wGPVdSei3NHKaZ0rHVILTvBOHAK2MVMJ"
+file_id = "1SzObFl4ArtW0f6c0AgtkyauGt__x9KQ3"
 url = f"https://drive.google.com/uc?id={file_id}"
 business_df = load_data(url)
 st.title("Restaurant Recommender")
@@ -188,9 +188,9 @@ if st.button("🔍 Begin Searching for Restaurants"):
         for _, row in top_restaurants.iterrows():
             # --- Determine contextual rating based on selected day ---
             if selected_day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
-                contextual_rating = f"{row['weekday_avg_star']:.2f} (weekday avg)"
+                contextual_rating = f"{row['weekday_avg_star']:.2f}"
             else:
-                contextual_rating = f"{row['weekend_avg_star']:.2f} (weekend avg)"
+                contextual_rating = f"{row['weekend_avg_star']:.2f}"
 
             col1, col2 = st.columns([2, 3])  # left: basic info; right: details
 
