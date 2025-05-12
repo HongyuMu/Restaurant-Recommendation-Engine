@@ -211,6 +211,7 @@ if st.button("🔍 Begin Searching for Restaurants"):
                 - 🪑 **Ambience Score**: `{row.get('ambience_sentiment', 'N/A'):.3f}`
                 - 💰 **Value Score**: `{row.get('value_sentiment', 'N/A'):.3f}`
                 - 📉 **Star Variability**: `{row.get('star_variability', 'N/A'):.3f}`
+                - 🅿️ **Parking**: {row.get('Parking_Category', 'N/A')}
                 - 🎯 **Final Score**: `{row['final_score']:.2f}` out of 10
                 """)
 
