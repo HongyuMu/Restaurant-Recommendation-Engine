@@ -139,6 +139,14 @@ value_w = st.slider("Portion Size", 0.0, 1.0, 0.2)
 stars_w = st.slider("Overall Star", 0.0, 1.0, 0.2)
 review_pref = st.slider("Total Review Count", 0.0, 1.0, 0.3)
 
+preset_weights = {
+    'food_sentiment': 0.21,
+    'service_sentiment': 0.21,
+    'ambience_sentiment': 0.19,
+    'value_sentiment': 0.20,
+    'stars': 0.19
+}
+
 # --- Button to Trigger Search ---
 if st.button("🔍 Begin Searching for Restaurants"):
 
@@ -157,13 +165,17 @@ if st.button("🔍 Begin Searching for Restaurants"):
         filtered_df = filtered_df[filtered_df['is_open_now']]
 
     total = food_w + service_w + ambience_w + value_w + stars_w
-    weights_dict = {
-        'food_sentiment': food_w / total,
-        'service_sentiment': service_w / total,
-        'ambience_sentiment': ambience_w / total,
-        'value_sentiment': value_w / total,
-        'stars': stars_w / total
-    }
+    if total == 0:
+        st.info("All weights are set to 0. Using default preset weights.")
+        weights_dict = preset_weights
+    else:
+        weights_dict = {
+            'food_sentiment': food_w / total,
+            'service_sentiment': service_w / total,
+            'ambience_sentiment': ambience_w / total,
+            'value_sentiment': value_w / total,
+            'stars': stars_w / total
+        }
 
     if filtered_df.empty:
         st.warning("Oops! There are no restaurants meeting these criteria at this moment. Please broaden your scope.")
